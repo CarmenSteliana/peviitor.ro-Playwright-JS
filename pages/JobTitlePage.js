@@ -8,6 +8,10 @@ class JobTitleList {
     }
 
     async jobTitleInput(jobTitle) {
+        if (!jobTitle || jobTitle.trim() === '') {
+            throw new Error("Job title input cannot be empty or just spaces");
+        }
+
         await this.searchInput.fill(jobTitle);
 
         await Promise.all([
