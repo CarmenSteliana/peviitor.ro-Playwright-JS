@@ -1,5 +1,5 @@
 
-export class JobTitle {
+class JobTitleList {
     constructor(page) {
         this.page = page;
         this.searchInput = page.locator("input[placeholder='Caută un loc de muncă']")
@@ -7,7 +7,7 @@ export class JobTitle {
         this.loadMoreJobs = page.locator("//button[contains(text(),'Încarcă mai multe')]");
     }
 
-    async jobTtitleInput(jobTitle) {
+    async jobTitleInput(jobTitle) {
         await this.searchInput.fill(jobTitle);
 
         await Promise.all([
@@ -37,4 +37,6 @@ export class JobTitle {
         return jobsText
 
     }
+
 }
+module.exports = { JobTitleList };
