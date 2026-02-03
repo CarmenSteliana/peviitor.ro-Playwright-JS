@@ -1,57 +1,27 @@
-const { test, expect } = require('@playwright/test')
+const { test } = require('@playwright/test');
+const { CityCheckbox } = require('../../pages/CityCheckbox');
 
-test('Filter Jobs By Cities', async ({ page }) => {
-    test.setTimeout(100000);
-    await page.goto('https://peviitor.ro/')
+test.describe('City filter checkbox tests', () => {
 
-    await Promise.all([
-        page.click("button[type='submit']"),
-        page.waitForLoadState('domcontentloaded')
-    ]);
+    test.beforeEach(async ({ page }) => {
+        await page.goto('https://peviitor.ro/');
+    });
 
-    await page.locator("input[placeholder='Caută un loc de muncă']").fill('ospatar')
-    await page.click("button[type='submit']")
+    test('Search job and filter by one city', async ({ page }) => {
+        const cityCheckbox = new CityCheckbox(page);
 
-    await page.click("//button[contains(text(),'Oraș')]")
+        await cityCheckbox.typeJobInput('QA Tester');
+        await cityCheckbox.checkCities('București');
+        await cityCheckbox.loadAllJobs();
+        await cityCheckbox.verifyMatchCities();
+    });
 
-    // select two cities from the dropdown and scroll 
-    const bucurestiChecbox = page.getByRole('checkbox', { name: 'București' })
-    await bucurestiChecbox.scrollIntoViewIfNeeded()
-    await bucurestiChecbox.check()
+    test('Search job and filter by multiple cities', async ({ page }) => {
+        const cityCheckbox = new CityCheckbox(page);
 
-    const constantaChecbox = page.getByRole('checkbox', { name: 'Constanța' })
-    await constantaChecbox.scrollIntoViewIfNeeded()
-    await constantaChecbox.check()
-    await page.click("button[type='submit']")
-
-    //load all the jobs by pressing the "Incarca mai multe" button and wait to be visible
-    const loadMoreJobs = page.locator("//button[contains(text(),'Încarcă mai multe')]")
-    const citiesResults = page.locator("//section[contains(@class, 'grid')]/div/div[2]/div/p");
-
-
-    while (true) {
-        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        await page.waitForTimeout(500);
-
-        const isVisible = await loadMoreJobs.isVisible();
-        if (!isVisible) {
-            break
-        }
-        await loadMoreJobs.click()
-        await page.waitForLoadState('domcontentloaded')
-    }
-
-    const textsCities = await citiesResults.allInnerTexts();
-    //const citiesArray = await citiesResults.evaluateAll(cities => cities.map(c => c.innerText));
-    //console.log('Numărul de joburi:', citiesArray.length);
-
-    //obtain the text results with inner text, extract only the string number with match
-    // and convert it in number
-    const h2Locator = page.locator("xpath=//h2[contains(@class, 'text-start')]")
-    //await expect(h2Locator).toBeVisible({ timeout: 60000 });
-    const countText = await h2Locator.innerText();
-    const countResults = parseInt(countText.match(/\d+/)[0], 10);
-    console.log(countResults)
-
-    await expect(textsCities.length).toBe(countResults)
-})
+        await cityCheckbox.typeJobInput('Automation');
+        await cityCheckbox.checkCities('Cluj-Napoca', 'Timișoara');
+        await cityCheckbox.loadAllJobs();
+        await cityCheckbox.verifyMatchCities();
+    });
+});

@@ -16,7 +16,7 @@ class JobTitleList {
 
         await Promise.all([
             this.searchButton.click(),
-            this.page.waitForLoadState('domcontentloaded')
+            this.page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
         ]);
     }
 
